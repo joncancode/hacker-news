@@ -22,8 +22,8 @@ const news = {
   },
   update: function (updatedItem) {
     console.log(`Updating item \`${updatedItem.id}\``);
-    console.log(`testing updated item \`${updatedItem.title}\``);
-     updatedItem = updatedItem.votes++;
+    // console.log(`testing updated item \`${updatedItem.title}\``);
+     //updatedItem = updatedItem.votes++;
     
     // const { id } = updatedItem;
     // if (!(id in this.items)) {
@@ -99,6 +99,12 @@ app.put('/api/stories/:id', jsonParser, (req, res) => {
     votes: req.body.votes
   });
   res.status(200).json(updatedItem);
+
+knex.select('title', 'votes')
+    .from('news')
+    .update('votes', req.body.votes++)
+    .then(results => res.send(results));
+
 
   //counter 
   //req.body.votes
