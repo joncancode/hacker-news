@@ -82,42 +82,15 @@ app.post('/api/stories', jsonParser, (req, res) => {
 
 app.put('/api/stories/:id', jsonParser, (req, res) => {
 
-  //   const status = validateNews(req.body);
 
-//   if (!status.isValid) {
-//     const message = `Missing \`${status.error}\` in request body`;
-//     return res.sendStatus(422).send(message);
-//   }
-
-//   const updatedItem = {
-//     id: req.params.id,
-//     title: req.body.title,
-//     url: req.body.url,
-//     votes: req.body.votes
-//   };
-
-//   console.log('updated item working');
-//   res.status(200).json(updatedItem);
 
   knex.select('title', 'url', 'votes')
     .from('news')
-    .where('title', req.body.title)
+    //.where('title', '=', req.body.title)
+    .where('title', req.params.id)
     .increment('votes', 1)
     .then(results => res.json(results));
 
-// knex.select('title', 'url', 'votes')
-//     .from('news')
-//     .orderBy('votes', 'asc')
-//     .limit(20)
-//     .returning('title', 'url', 'votes')
-//     .then(results => {
-//       res.json(results);
-//     });
-
-  //counter 
-  //req.body.votes
-
-//   const item = news.update(req.body.title, req.body.url, req.body.votes);
 
 });
 
