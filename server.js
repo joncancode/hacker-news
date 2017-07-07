@@ -3,6 +3,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const jsonParser = bodyParser.json();
 
 const { DATABASE, PORT } = require('./config');
 
@@ -15,7 +16,20 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => {
   res.send('hello world');
 });
-// ADD ENDPOINTS HERE
+
+app.post('/api/stories', jsonParser, (req, res) => {
+  const requiredFields = ['title', 'url'];
+
+  res.send('hello world');
+  res.sendStatus(201);
+});
+
+app.put('/', (req, res) => {
+  
+  res.send('hello world');
+});
+
+
 
 let server;
 let knex;
