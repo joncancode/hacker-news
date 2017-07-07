@@ -1,4 +1,4 @@
-'use strict'; 
+'use strict';
 
 const express = require('express');
 const morgan = require('morgan');
@@ -14,72 +14,84 @@ app.use(morgan(':method :url :res[location] :status'));
 app.use(bodyParser.json());
 
 app.get('/api/stories', (req, res) => {
-  knex.select('title', 'url','votes') 
-    .from('news')
-    .orderBy('votes', 'asc')
-    .limit(20)
-    .returning('title', 'url','votes')
-    .then(results => {res.json(results);
-      console.log('line 20 the magic');
+    knex.select('title', 'url', 'votes')
+        .from('news')
+        .orderBy('votes', 'asc')
+        .limit(20)
+        .returning('title', 'url', 'votes')
+        .then(results => {
+            res.json(results);
+        });
 
-    }); 
-
-  //  console.log(results);
-  // res.send('GET world');
-   
 });
 
 app.post('/api/stories', jsonParser, (req, res) => {
-  const requiredFields = ['title', 'url'];
+    const requiredFields = ['title', 'url', 'votes'];
 
-  res.send('POST world');
-  res.sendStatus(201);
+    knex('news')
+        .insert({
+            title: JSON.stringify(req.body.title),
+            url: req.body.url,
+            votes: req.body.votes
+
+        }).returning(['title', 'url', 'votes'])
+        .limit(10)
+
+    // const item = ShoppingList.create(req.body.name, req.body.budget);
+    // res.status(201).json(item);
+
+        .then(result => {
+        console.log(JSON.stringify(result[0], null, 2))
+
+        res.send('POST world');
+        res.sendStatus(201);
+
+    });
+
+    app.put('/api/stories/:id', (req, res) => {
+
+        res.send('UPDATE world');
+    });
+
 });
-
-app.put('/api/stories/:id', (req, res) => {
-  
-  res.send('UPDATE world');
-});
-
-
 
 let server;
 let knex;
 function runServer(database = DATABASE, port = PORT) {
-  return new Promise((resolve, reject) => {
-    try {
-      knex = require('knex')(database);
-      server = app.listen(port, () => {
-        console.info(`App listening on port ${server.address().port}`);
-        resolve();
-      });
-    }
-    catch (err) {
-      console.error(`Can't start server: ${err}`);
-      reject(err);
-    }
-  });
+    return new Promise((resolve, reject) => {
+        try {
+            knex = require('knex')(database);
+            server = app.listen(port, () => {
+                console.info(`App listening on port ${server.address().port}`);
+                resolve();
+            });
+        }
+        catch (err) {
+            console.error(`Can't start server: ${err}`);
+            reject(err);
+        }
+    });
 }
 
 function closeServer() {
-  return knex.destroy().then(() => {
-    return new Promise((resolve, reject) => {
-      console.log('Closing servers');
-      server.close(err => {
-        if (err) {
-          return reject(err);
-        }
-        resolve();
-      });
+    return knex.destroy().then(() => {
+        return new Promise((resolve, reject) => {
+            console.log('Closing servers');
+            server.close(err => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve();
+            });
+        });
     });
-  });
 }
 
 if (require.main === module) {
-  runServer().catch(err => {
-    console.error(`Can't start server: ${err}`);
-    throw err;
-  });
+    runServer().catch(err => {
+        console.error(`Can't start server: ${err}`);
+        throw err;
+    });
 }
 
 module.exports = { app, runServer, closeServer };
