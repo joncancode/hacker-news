@@ -1,4 +1,4 @@
-const DATABASE_URL = process.env.DATABASE_URL || global.DATABASE_URL || 'postgresql://localhost/hacker-news-api';
+const DATABASE_URL = process.env.DATABASE_URL || global.DATABASE_URL || 'postgresql://localhost/dev-hacker-news-api';
 
 exports.DATABASE = {
   client: 'pg',

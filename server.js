@@ -13,20 +13,32 @@ app.use(morgan(':method :url :res[location] :status'));
 
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.send('hello world');
+app.get('/api/stories', (req, res) => {
+  knex.select('title', 'url','votes') 
+    .from('news')
+    .orderBy('votes', 'asc')
+    .limit(20)
+    .returning('title', 'url','votes')
+    .then(results => {res.json(results);
+      console.log('line 20 the magic');
+
+    }); 
+
+  //  console.log(results);
+  // res.send('GET world');
+   
 });
 
 app.post('/api/stories', jsonParser, (req, res) => {
   const requiredFields = ['title', 'url'];
 
-  res.send('hello world');
+  res.send('POST world');
   res.sendStatus(201);
 });
 
-app.put('/', (req, res) => {
+app.put('/api/stories/:id', (req, res) => {
   
-  res.send('hello world');
+  res.send('UPDATE world');
 });
 
 
