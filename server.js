@@ -11,39 +11,59 @@ const { DATABASE, PORT } = require('./config');
 const app = express();
 
 const news = {
-  create: function(title, url, votes) {
+  create: function (title, url, votes) {
     console.log('Creating new posts list item');
     const item = {
       title: title,
       id: uuid.v4(),
       url: url,
-      votes: votes, 
+      votes: votes,
     };
-    this.items[item.id] = item;
-    return item;
-  }
+  },
+  update: function (updatedItem) {
+    console.log(`Updating item \`${updatedItem.id}\``);
+    console.log(`testing updated item \`${updatedItem.title}\``);
+     updatedItem = updatedItem.votes++;
+    
+    // const { id } = updatedItem;
+    // if (!(id in this.items)) {
+    //   throw (`Can't update item \`${id}\` because doesn't exist.`);
+    // }
+    // this.items[votes.id] = votes;
+    // return votes;
 
+  }
 };
 
 app.use(morgan(':method :url :res[location] :status'));
 
 app.use(bodyParser.json());
 
-// app.get('/api/stories', (req, res) => {
-//   knex.select('title', 'url', 'votes')
-//     .from('news')
-//     .orderBy('votes', 'asc')
-//     .limit(20)
-//     .returning('title', 'url', 'votes')
-//     .then(results => {
-//     res.json(results);
-//     });
+app.get('/api/stories', (req, res) => {
+  knex.select('title', 'url', 'votes')
+    .from('news')
+    .orderBy('votes', 'asc')
+    .limit(20)
+    .returning('title', 'url', 'votes')
+    .then(results => {
+      res.json(results);
+    });
 
-// });
+});
 
 
 app.post('/api/stories', jsonParser, (req, res) => {
   const requiredFields = ['title', 'url', 'votes'];
+
+  for (let i = 0; i < requiredFields.length; i++) {
+    const field = requiredFields[i];
+    if (!(field in req.body)) {
+      const message = `Missing \`${field}\` in request body`;
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  }
+
   knex('news')
     .insert({
       title: req.body.title,
@@ -53,19 +73,37 @@ app.post('/api/stories', jsonParser, (req, res) => {
     }).returning(['title', 'url', 'votes'])
     .limit(10)
 
-    // res.status(201).json(item);
+  // res.status(201).json(item);
 
     .then(result => {
       console.log(JSON.stringify(result[0], null, 2));
 
       res.sendStatus(200);
     });
+
 });
-app.put('/api/stories/:id', (req, res) => {
 
-  res.send('UPDATE world');
+app.put('/api/stories/:id', jsonParser, (req, res) => {
 
-  const item = news.create(req.body.title, req.body.url, req.body.votes);
+//   const status = validateNews(req.body);
+
+//   if (!status.isValid) {
+//     const message = `Missing \`${status.error}\` in request body`;
+//     return res.status(422).send(message);
+//   }
+
+  const updatedItem = news.update({
+    id: req.params.id,
+    title: req.body.title,
+    url: req.body.url,
+    votes: req.body.votes
+  });
+  res.status(200).json(updatedItem);
+
+  //counter 
+  //req.body.votes
+
+  const item = news.update(req.body.title, req.body.url, req.body.votes);
 
 });
 
