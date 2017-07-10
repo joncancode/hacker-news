@@ -10,15 +10,15 @@ const { DATABASE, PORT } = require('./config');
 
 const app = express();
 
-const CORSadder = (req, res, next) => {
+const enableCORS = (req, res, next) => {
   res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Headers', 'Content-Type');
+  res.set('Access-Control-Allow-Headers', 'Content-Type', 'Authorization');
   res.set('Access-Control-Allow-Methods', 'GET, POST, PUT');
   
   next();
 };
 
-app.use(CORSadder);
+app.use(enableCORS);
 
 const news = {
   create: function (title, url, votes) {
@@ -46,7 +46,7 @@ app.use(morgan(':method :url :res[location] :status'));
 
 app.use(bodyParser.json());
 
-app.get('/api/stories', CORSadder, (req, res) => {
+app.get('/api/stories', enableCORS, (req, res) => {
   knex.select('title', 'url', 'votes')
     .from('news')
     .orderBy('votes', 'asc')
@@ -59,7 +59,7 @@ app.get('/api/stories', CORSadder, (req, res) => {
 });
 
 
-app.post('/api/stories', CORSadder, jsonParser, (req, res) => {
+app.post('/api/stories', enableCORS, jsonParser, (req, res) => {
   const requiredFields = ['title', 'url', 'votes'];
 
   for (let i = 0; i < requiredFields.length; i++) {
@@ -90,7 +90,7 @@ app.post('/api/stories', CORSadder, jsonParser, (req, res) => {
 
 });
 
-app.put('/api/stories/:id', CORSadder, jsonParser, (req, res) => {
+app.put('/api/stories/:id', enableCORS, jsonParser, (req, res) => {
 
 
 
